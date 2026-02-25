@@ -40,7 +40,7 @@ const MovieList = ({
         breakpoints={{
           1024: { navigation: true },
         }}
-        className="movie-swiper overflow-visible!"
+        className="movie-swiper"
       >
         {isLoading
           ? // Show Skeleton

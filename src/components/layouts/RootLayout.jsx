@@ -13,7 +13,7 @@ const RootLayout = () => {
   }, [pathname]);
 
   return (
-    <div className="bg-zinc-950 min-h-screen flex flex-col selection:bg-green-500 selection:text-white">
+    <div className="bg-zinc-950 min-h-screen flex flex-col selection:bg-green-500 selection:text-white overflow-x-hidden">
       <Navbar />
 
       <main className="grow">

@@ -92,7 +92,7 @@ const MovieDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white pb-20">
+    <div className="min-h-screen bg-zinc-950 text-white pb-20 overflow-x-hidden">
       <div className="relative w-full overflow-hidden">
         {isWatching ? (
           <div className="pt-28 px-6 lg:px-16 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -138,7 +138,7 @@ const MovieDetailPage = () => {
             </div>
 
             {/* Poster & Title Overlay */}
-            <div className="absolute bottom-0 left-0 w-full px-6 lg:px-16 pb-12 flex flex-col lg:flex-row items-end gap-10 z-10 pointer-events-none">
+            <div className="absolute bottom-0 left-0 w-full px-6 lg:px-16 pb-6 sm:pb-12 flex flex-col lg:flex-row items-end gap-4 sm:gap-10 z-10 pointer-events-none">
               <img
                 src={movie.poster}
                 alt={movie.title}
@@ -150,10 +150,10 @@ const MovieDetailPage = () => {
                     <Badge key={genre}>{genre}</Badge>
                   ))}
                 </div>
-                <h1 className="text-5xl lg:text-8xl font-black uppercase  italic mb-5 leading-[0.9]">
+                <h1 className="text-3xl sm:text-5xl lg:text-8xl font-black uppercase italic mb-5 leading-[0.9]">
                   {movie.title}
                 </h1>
-                <div className="flex items-center gap-8 text-zinc-300 mb-6">
+                <div className="flex items-center flex-wrap gap-3 sm:gap-8 text-zinc-300 mb-6">
                   <MovieRating score={movie.rating} />
                   <span className="w-1.5 h-1.5 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.8)]" />
                   <span className="font-bold tracking-widest">
@@ -166,7 +166,7 @@ const MovieDetailPage = () => {
                 </div>
 
                   <div className="flex flex-col gap-4">
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-4">
                       <Button
                         variant={inWatchlist ? "primary" : "outline"}
                         onClick={toggleWatchlist}
@@ -256,7 +256,7 @@ const MovieDetailPage = () => {
           </section>
 
           {/* Detailed Statistics Sidebar */}
-          <div className="bg-zinc-900/40 p-10 rounded-[2.5rem] border border-white/5 space-y-8">
+          <div className="bg-zinc-900/40 p-5 sm:p-10 rounded-[2.5rem] border border-white/5 space-y-8">
             <div className="flex justify-between items-center border-b border-zinc-800 pb-5">
               <span className="text-zinc-500 text-xs font-black uppercase tracking-widest">
                 Global Status

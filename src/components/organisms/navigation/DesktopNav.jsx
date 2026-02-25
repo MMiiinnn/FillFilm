@@ -3,10 +3,15 @@ import { useState, useEffect } from "react";
 import Icon from "../../atoms/Icon";
 import Button from "../../atoms/Button";
 import Search from "../../molecules/Search";
+import useWatchlistStore from "../../../store/useWatchlistStore";
+import useAuthStore from "../../../store/useAuthStore";
+import UserMenu from "../../molecules/UserMenu";
 
 function DesktopNav({links}) {
   const navigate = useNavigate();
   const [isSearch, setIsSearch] = useState(false);
+  const { watchlist } = useWatchlistStore();
+  const { user } = useAuthStore();
 
   const urlList = {
     "Home": "/",
@@ -52,9 +57,14 @@ function DesktopNav({links}) {
             ) : (
               <Link
                 to={urlList[link]}
-                className="flex items-center h-full px-5 hover:bg-white hover:text-black transition-all"
+                className="flex items-center gap-2 h-full px-5 hover:bg-white hover:text-black transition-all"
               >
                 {link}
+                {link === "Watchlist" && watchlist.length > 0 && (
+                  <span className="bg-green-500 text-black text-xs font-bold px-2 py-0.5 rounded-full min-w-5 text-center">
+                    {watchlist.length}
+                  </span>
+                )}
               </Link>
             )}
           </li>
@@ -74,8 +84,20 @@ function DesktopNav({links}) {
           >
             <Icon name="search" className="text-3xl!" />
           </button>
-          <Button variant="outline">Sign up</Button>
-          <Button variant="primary">Login</Button>
+          
+          {/* Conditional Auth UI */}
+          {user ? (
+            <UserMenu />
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => navigate("/signup")}>
+                Sign up
+              </Button>
+              <Button variant="primary" onClick={() => navigate("/signin")}>
+                Login
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </nav>

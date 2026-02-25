@@ -65,7 +65,7 @@ function MobileNav({ isOpenSidebar }) {
         >
           <Icon name="arrow_back_ios" className="text-2xl!" />
         </button>
-        <div className="flex-1 min-w-50">
+        <div className="flex-1 min-w-0">
           <Input
             className="w-full bg-transparent border-none outline-none text-white text-lg placeholder:text-zinc-500 font-body h-12 focus:ring-0! focus:border-none!"
             placeholder="Search movies..."

@@ -1,6 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import Icon from "../../atoms/Icon";
 import Button from "../../atoms/Button";
+import useWatchlistStore from "../../../store/useWatchlistStore";
+import useAuthStore from "../../../store/useAuthStore";
+import UserAvatar from "../../atoms/UserAvatar";
 
 const urlList = {
   "Home": "/",
@@ -12,6 +15,8 @@ const urlList = {
 
 function MobileSideBar({ onOpen, onClose, links }) {
   const navigate = useNavigate();
+  const { watchlist } = useWatchlistStore();
+  const { user, signOut } = useAuthStore();
 
   const handleNavigation = (link) => {
     const path = urlList[link];
@@ -23,6 +28,11 @@ function MobileSideBar({ onOpen, onClose, links }) {
             navigate(path);
         }
     }
+    onClose();
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
     onClose();
   };
 
@@ -48,15 +58,45 @@ function MobileSideBar({ onOpen, onClose, links }) {
           </button>
         </div>
 
+        {/* User Profile Section (if authenticated) */}
+        {user && (
+          <div className="p-4 border-b border-white/10 bg-zinc-900/50">
+            <div className="flex items-center gap-3 mb-3">
+              <UserAvatar user={user} size="md" />
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-semibold truncate">
+                  {user.displayName || "User"}
+                </p>
+                <p className="text-zinc-400 text-sm truncate">{user.email}</p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full justify-center text-sm"
+              onClick={() => {
+                navigate("/profile");
+                onClose();
+              }}
+            >
+              View Profile
+            </Button>
+          </div>
+        )}
+
         <nav className="flex-1 overflow-y-auto py-4">
           <ul className="flex flex-col">
             {links.map((link) => (
               <li key={link}>
                 <button
-                  className="w-full text-left px-6 py-4 text-lg text-zinc-300 hover:bg-white/5 hover:text-green-500 transition-all border-b border-white/5"
+                  className="w-full text-left px-6 py-4 text-lg text-zinc-300 hover:bg-white/5 hover:text-green-500 transition-all border-b border-white/5 flex items-center justify-between"
                   onClick={() => handleNavigation(link)}
                 >
-                  {link}
+                  <span>{link}</span>
+                  {link === "Watchlist" && watchlist.length > 0 && (
+                    <span className="bg-green-500 text-black text-xs font-bold px-2 py-0.5 rounded-full min-w-5 text-center">
+                      {watchlist.length}
+                    </span>
+                  )}
                 </button>
               </li>
             ))}
@@ -64,8 +104,39 @@ function MobileSideBar({ onOpen, onClose, links }) {
         </nav>
 
         <div className="p-6 border-t border-white/10 flex flex-col gap-3 bg-zinc-900/50">
-          <Button variant="outline" className="w-full justify-center">Sign up</Button>
-          <Button variant="primary" className="w-full justify-center">Login</Button>
+          {user ? (
+            <Button
+              variant="outline"
+              className="w-full justify-center"
+              onClick={handleSignOut}
+            >
+              <Icon name="logout" />
+              Sign Out
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                className="w-full justify-center"
+                onClick={() => {
+                  navigate("/signup");
+                  onClose();
+                }}
+              >
+                Sign up
+              </Button>
+              <Button
+                variant="primary"
+                className="w-full justify-center"
+                onClick={() => {
+                  navigate("/signin");
+                  onClose();
+                }}
+              >
+                Login
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </>

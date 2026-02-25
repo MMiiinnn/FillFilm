@@ -55,8 +55,8 @@ const HeroSection = ({ movies }) => {
                 />
 
                 {/* Gradient Overlays */}
-                <div className="absolute -inset-px bg-linear-to-r from-black via-black/40 to-transparent" />
-                <div className="absolute -inset-px bg-linear-to-t from-zinc-950 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-r from-black via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-transparent to-transparent" />
 
                 {/* Content */}
                 <div className="absolute inset-0 flex flex-col justify-center px-6 lg:px-16 max-w-3xl">

@@ -21,7 +21,7 @@ const MovieCard = ({
   if (variant === "horizontal") {
     return (
       <div
-        className="group relative flex items-center gap- py-4 cursor-pointer"
+        className="group relative flex items-center gap- py-4 cursor-pointer overflow-hidden"
         onClick={handleClick}
       >
         <span className="absolute -left-7 text-7xl lg:text-8xl font-black text-white/50 italic z-100 transition-colors group-hover:text-green-500/50 ">

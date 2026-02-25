@@ -41,7 +41,7 @@ const AwardSection = ({
   };
 
   return (
-    <section className="px-6 lg:px-16 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-black text-white">
+    <section className="px-6 lg:px-16 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-black text-white overflow-hidden">
       {/* FEATURED MOVIE */}
       <div className="lg:col-span-6 flex flex-col">
         <div className="flex justify-between items-center mb-6">
@@ -72,7 +72,7 @@ const AwardSection = ({
            </Badge>
           )}
 
-          <h3 className="text-4xl lg:text-5xl font-bold leading-none cursor-pointer hover:text-brand-green transition-colors" onClick={() => navigate(`/movie/${featuredMovie.id}`)}>
+          <h3 className="text-2xl sm:text-4xl lg:text-5xl font-bold leading-none cursor-pointer hover:text-brand-green transition-colors" onClick={() => navigate(`/movie/${featuredMovie.id}`)}>
             {featuredMovie.title}
           </h3>
 
@@ -90,7 +90,7 @@ const AwardSection = ({
             {featuredMovie.overview || featuredMovie.desc}
           </p>
 
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-wrap gap-4 pt-4">
             <Button
               variant="primary"
               icon="play_arrow"

@@ -8,6 +8,10 @@ import VideoPlayer from "./components/organisms/VideoPlayer";
 import SearchPage from "./components/pages/SearchPage";
 import WatchlistPage from "./components/pages/WatchlistPage";
 import AboutPage from "./components/pages/AboutPage";
+import SignInPage from "./components/pages/SignInPage";
+import SignUpPage from "./components/pages/SignUpPage";
+import ProfilePage from "./components/pages/ProfilePage";
+import ProtectedRoute from "./components/helpers/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -30,11 +34,31 @@ const router = createBrowserRouter([
       },
       {
         path: "watchlist",
-        element: <WatchlistPage />,
+        element: (
+          <ProtectedRoute>
+            <WatchlistPage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "about",
         element: <AboutPage />,
+      },
+      {
+        path: "signin",
+        element: <SignInPage />,
+      },
+      {
+        path: "signup",
+        element: <SignUpPage />,
+      },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "*",

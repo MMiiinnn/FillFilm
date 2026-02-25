@@ -78,7 +78,7 @@ const MoodPicker = () => {
             <button
               key={mood.label}
               onClick={() => handleMoodSelect(mood)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-110
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 rounded-full transition-all duration-300 transform hover:scale-110
                 ${selectedMood?.label === mood.label 
                   ? `${mood.color} text-white shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-110` 
                   : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white"
@@ -99,7 +99,7 @@ const MoodPicker = () => {
 
         {/* Results */}
         {!loading && movieData.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
             {movieData.map((movie) => (
               <Link 
                 to={`/movie/${movie.id}`} 
