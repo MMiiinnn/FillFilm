@@ -68,18 +68,6 @@ const SignUpPage = () => {
             onGoogleSignIn={handleGoogleSignIn}
             loading={loading}
           />
-
-          {/* Terms */}
-          <p className="mt-4 text-xs text-zinc-500 text-center">
-            By signing up, you agree to our{" "}
-            <Link to="/terms" className="text-green-500 hover:underline">
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="text-green-500 hover:underline">
-              Privacy Policy
-            </Link>
-          </p>
         </div>
 
         {/* Sign In Link */}

@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HeroSection from "../organisms/HeroSection";
-import MovieList from "../organisms//MovieList";
+import MovieList from "../organisms/MovieList";
 import tmdbService from "../../services/tmdbService";
 import AwardSection from "../organisms/AwardSection";
 import MoodPicker from "../organisms/MoodPicker";

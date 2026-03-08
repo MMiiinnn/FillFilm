@@ -12,6 +12,7 @@ import AboutPage from "./components/pages/AboutPage";
 import SignInPage from "./components/pages/SignInPage";
 import SignUpPage from "./components/pages/SignUpPage";
 import ProfilePage from "./components/pages/ProfilePage";
+import ForgotPasswordPage from "./components/pages/ForgotPasswordPage";
 import ProtectedRoute from "./components/helpers/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
         element: <SignUpPage />,
       },
       {
+        path: "reset-password",
+        element: <ForgotPasswordPage />,
+      },
+      {
         path: "profile",
         element: (
           <ProtectedRoute>
@@ -72,7 +77,7 @@ const router = createBrowserRouter([
 function App() {
   return (
   <>
-    <RouterProvider router={router} />;
+    <RouterProvider router={router} />
     <Analytics />
   </>
   )

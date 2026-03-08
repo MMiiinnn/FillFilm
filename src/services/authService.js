@@ -179,7 +179,6 @@ const authService = {
    * @returns {Object|null} 
    */
   getCurrentUser: () => {
-    console.log(auth);
     return auth.currentUser;
   },
 };
