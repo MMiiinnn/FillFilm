@@ -1,468 +1,334 @@
-# 🎬 FillFilm - Project Context Document
+# FillFilm — Project Context
 
-## 📋 Project Overview
+## Overview
 
-**FillFilm** is a premium, modern movie discovery web application built with React and powered by The Movie Database (TMDB) API. The application provides a Netflix-like streaming experience with advanced features including AI-powered movie recommendations using Google Gemini AI.
+FillFilm is a full-stack movie discovery web application that replicates a Netflix-like streaming experience. It integrates three external services — TMDB for movie data, Firebase for authentication, and Google Gemini for AI-powered recommendations — into a cohesive, responsive, and visually polished single-page application.
 
-### Key Information
-- **Project Name**: FillFilm (package name: netflix-clone)
-- **Repository**: https://github.com/MMiiinnn/MovieApp
-- **Tech Stack**: React 19, Vite, TailwindCSS 4, Zustand, Axios
-- **Current Status**: Production-ready with AI integration completed
-- **Last Updated**: February 2026
+This document explains every technical decision, architecture pattern, and implementation detail in the project.
 
 ---
 
-## 🛠️ Technology Stack
+## Tech Stack & Justification
 
-### Core Technologies
-- **Frontend Framework**: React 19.2.0
-- **Build Tool**: Vite 7.2.4
-- **Styling**: TailwindCSS 4.1.18 (with custom theme)
-- **Routing**: React Router DOM 7.13.0
-- **State Management**: Zustand 5.0.11 (with persist middleware)
-- **HTTP Client**: Axios 1.13.4
-
-### Additional Libraries
-- **UI Components**: 
-  - Swiper 12.0.3 (for carousels)
-  - React Icons 5.5.0 (Material Icons)
-  - React Hot Toast 2.6.0 (notifications)
-- **Media**: React Player 3.4.0 (video playback)
-- **AI Integration**: @google/generative-ai 0.24.1 (Gemini API)
-
-### Development Tools
-- ESLint 9.39.1
-- PostCSS 8.5.6
-- Autoprefixer 10.4.23
+| Technology | Version | Why It Was Chosen |
+|------------|---------|-------------------|
+| **React** | 19 | Component-based UI library. Hooks (`useState`, `useEffect`, `useRef`, `useParams`, `useNavigate`) handle all component logic without class components. |
+| **Vite** | 7 | Near-instant HMR and fast production builds via ESBuild. Chosen over CRA/Webpack for developer experience and build speed. |
+| **TailwindCSS** | 4 | Utility-first CSS — all styling is done inline via class names with no separate CSS files per component. Enables rapid prototyping and consistent design tokens. |
+| **React Router DOM** | 7 | Client-side routing with `createBrowserRouter`. Supports nested routes (movie detail → video player), route protection, and error boundaries. |
+| **Zustand** | 5 | Lightweight state management (2 stores, ~80 lines total). Chosen over Redux for simplicity. Supports middleware (`persist` for localStorage). |
+| **Axios** | Latest | HTTP client with interceptor support. Centralizes API configuration, auth headers, response unwrapping, and error handling. |
+| **Firebase Auth** | Latest | Managed authentication service. Handles email/password sign-up, Google OAuth, password reset emails, and profile updates without building a backend. |
+| **Google Gemini** | 2.5 Flash | Generative AI for natural language movie recommendations. Used for mood-based suggestions and per-movie "Why Watch This?" hooks. |
+| **Swiper** | Latest | Touch-friendly carousel/slider library. Used for the hero section (fade effect) and horizontal movie lists (free-mode scrolling). |
+| **React Hot Toast** | Latest | Lightweight toast notification system for success/error/loading feedback across auth flows and AI interactions. |
+| **Vercel Analytics** | Latest | Production analytics integration, injected at the app root level. |
 
 ---
 
-## 📂 Project Structure
+## Architecture
 
-The project follows **Atomic Design** principles for maximum reusability and maintainability:
+### Atomic Design Pattern
+
+The component hierarchy follows Atomic Design, which organizes UI elements by complexity:
 
 ```
-MovieApp/
-├── public/                     # Static assets
-├── src/
-│   ├── components/
-│   │   ├── atoms/             # Basic UI building blocks
-│   │   │   ├── Badge.jsx
-│   │   │   ├── Button.jsx
-│   │   │   ├── Genres.jsx
-│   │   │   ├── Icon.jsx
-│   │   │   ├── Input.jsx
-│   │   │   ├── MovieCardSkeleton.jsx
-│   │   │   ├── MovieRating.jsx
-│   │   │   └── ScrollToTop.jsx
-│   │   ├── molecules/         # Simple component groups
-│   │   │   ├── CastCard.jsx
-│   │   │   ├── MovieCard.jsx
-│   │   │   └── Search.jsx
-│   │   ├── organisms/         # Complex sections
-│   │   │   ├── AwardSection.jsx
-│   │   │   ├── Footer.jsx
-│   │   │   ├── HeroSection.jsx
-│   │   │   ├── MoodPicker.jsx      # AI-powered feature
-│   │   │   ├── MovieList.jsx
-│   │   │   ├── SideMovieList.jsx
-│   │   │   ├── VideoPlayer.jsx
-│   │   │   └── navigation/         # Navigation components
-│   │   ├── layouts/           # Page wrappers
-│   │   │   └── RootLayout.jsx
-│   │   ├── pages/             # Route destinations
-│   │   │   ├── AboutPage.jsx
-│   │   │   ├── ErrorPage.jsx
-│   │   │   ├── HomePage.jsx
-│   │   │   ├── MovieDetailPage.jsx
-│   │   │   ├── SearchPage.jsx
-│   │   │   └── WatchlistPage.jsx
-│   │   └── helpers/           # Utility functions
-│   ├── services/              # API integration layer
-│   │   ├── apiConfig.js       # Axios instance & config
-│   │   ├── tmdbService.js     # TMDB API methods
-│   │   └── geminiService.js   # Google Gemini AI integration
-│   ├── store/                 # State management
-│   │   └── useWatchlistStore.js
-│   ├── App.jsx                # Routing configuration
-│   ├── main.jsx               # Application entry point
-│   └── index.css              # Global styles & Tailwind config
-├── .env                       # Environment variables (API keys)
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-├── README.md
-└── ROADMAP.md
+Atoms → Molecules → Organisms → Pages
 ```
 
----
+**Atoms** are the smallest, reusable UI primitives:
 
-## 🎯 Core Features
+| Component | Purpose | Key Technique |
+|-----------|---------|---------------|
+| `Button` | Universal button with 7 variants (primary, secondary, outline, ghost, icon, link, google) | Variant pattern via object lookup, spread props, loading spinner state |
+| `Input` | Form input with password toggle, email validation indicator, error states | `forwardRef` for parent ref access, conditional `type` switching |
+| `Icon` | Material Symbols + FontAwesome icons in one component | Conditional rendering based on `type` prop |
+| `Badge` | Small label/tag | Minimal composition component |
+| `MovieRating` | Star + score display | — |
+| `MovieCardSkeleton` | Loading placeholder with 2 variants (vertical/horizontal) | CSS `animate-pulse` for shimmer effect |
+| `ScrollToTop` | Floating button that appears on scroll | `window.scrollY` threshold with event listener cleanup |
+| `UserAvatar` | User photo or name-initial fallback | String parsing for initials (handles multi-word names) |
+| `Genres` | Genre list display, handles both object and string formats | Dynamic type coercion (`typeof g === "object" ? g.name : g`) |
 
-### 1. **Movie Discovery & Browsing**
-- **Hero Section**: Full-screen carousel showcasing trending movies
-- **Multiple Categories**:
-  - Trending (Movies & TV Shows)
-  - Popular Movies
-  - Top Rated
-  - Now Playing (in theaters)
-  - Upcoming Movies
-  - Korean TV Series (K-Drama)
-  - Popular TV Shows
-  - Top 10 Today
+**Molecules** combine atoms into functional groups:
 
-### 2. **Search Functionality**
-- Real-time multi-search (movies & TV shows)
-- Glassmorphic search UI with click-outside and scroll-to-close logic
-- Dedicated search results page (`/search`)
-- Shows trending movies when no query is present
-- Filter options (Movies vs TV Shows)
+| Component | Purpose | Key Technique |
+|-----------|---------|---------------|
+| `MovieCard` | Clickable card with 2 layouts (vertical poster / horizontal ranked) | Conditional variant rendering, `useNavigate` for programmatic routing |
+| `AuthForm` | Reusable sign-in / sign-up form | Mode-based rendering (`isSignUp` prop), per-field validation, Google OAuth button |
+| `Search` | Animated expandable search bar | `useRef` for focus management, click-outside detection via `mousedown` event, `Escape` key handler |
+| `CastCard` | Actor photo + name + character | Placeholder image fallback |
+| `UserMenu` | Avatar dropdown with profile/watchlist/sign-out links | Click-outside to close, auth state from Zustand |
 
-### 3. **Movie Details**
-- Comprehensive movie/TV show information
-- Cast & crew display (top 8 actors)
-- Video player integration for trailers
-- Similar movie recommendations
-- Runtime, genres, ratings, and descriptions
+**Organisms** are complex, self-contained sections:
 
-### 4. **Watchlist Feature** (Zustand + localStorage)
-- Add/remove movies to personal watchlist
-- Persistent storage across sessions
-- Toast notifications for user feedback
-- Dedicated watchlist page (`/watchlist`)
-- Integration in HeroSection, MovieDetailPage, and Navbar
+| Component | Purpose | Key Technique |
+|-----------|---------|---------------|
+| `HeroSection` | Full-screen carousel of featured movies | Swiper with fade effect, auto-play, pagination, watchlist toggle with `stopPropagation` |
+| `MovieList` | Horizontal scrollable movie row with skeleton loading | Swiper free-mode, responsive breakpoints, variant-based card sizing |
+| `AwardSection` | Featured movie spotlight + 2 side lists | 12-column CSS grid layout |
+| `SideMovieList` | Vertically scrollable movie list with manual scroll buttons | `useRef` for scroll control (`scrollBy`), color theming via `isLive` prop |
+| `MoodPicker` | AI mood-based recommendation engine | 6 mood buttons → Gemini prompt → parse 5 titles → TMDB search → display results |
+| `VideoPlayer` | Embedded video player with 4 server sources | Server switching via state, `key` prop to force iframe re-render on source change |
+| `Footer` | Site footer with social links and nav | FontAwesome icons via dynamic class names |
+| `Navbar` | Responsive nav container | Scroll-aware background blur (`scrollY > 50`), conditional desktop/mobile rendering |
+| `DesktopNav` | Desktop navigation with auth-aware UI | Renders `UserMenu` when authenticated, Sign Up/Login buttons when not |
+| `MobileNav` | Mobile top bar with hamburger + search | Search animation toggle |
+| `MobileSideBar` | Full-screen slide-out menu | Transform-based animation, body scroll lock concept, user profile section |
 
-### 5. **AI-Powered Mood Picker** 🤖
-- **Technology**: Google Gemini 2.5 Flash model
-- **Functionality**: 
-  - User selects mood (Happy, Sad, Excited, Relaxed, Thoughtful, Scared)
-  - AI generates 5 movie recommendations with reasons
-  - Automatically searches TMDB for recommended movies
-  - Displays results with posters, ratings, and AI-generated reasons
-- **Location**: HomePage (`MoodPicker.jsx` component)
+**Pages** are full route destinations:
 
-### 6. **Responsive Design**
-- Fully responsive across all devices
-- Mobile-optimized navigation
-- Adaptive layouts for different screen sizes
-
-### 7. **Premium UI/UX**
-- Dark mode aesthetic
-- Glassmorphism effects
-- Smooth animations and transitions
-- Skeleton loaders for loading states
-- Custom fonts: Montserrat (body), Bebas Neue (headings)
-- Custom color palette with brand green (#16a34a)
+| Page | Route | Data Fetching | Key Features |
+|------|-------|---------------|--------------|
+| `HomePage` | `/` | 9 parallel API calls via `Promise.all` | HeroSection, MoodPicker, AwardSection, 6 MovieLists, skeleton loading states |
+| `MovieDetailPage` | `/movie/:id` | `getMovieDetails` with extended option | Backdrop hero, genre badges, cast grid, trailer iframe, AI "Why Watch This?", similar movies, nested `<Outlet>` for video player |
+| `SearchPage` | `/search?q=` | `search()` or `getTrending()` fallback | Filter tabs (All/Movies/TV), count per filter, empty state with clear-filter button |
+| `WatchlistPage` | `/watchlist` | From Zustand store (no API call) | Protected route, clear-all with confirmation dialog, empty state CTA |
+| `ProfilePage` | `/profile` | From auth store + watchlist store | Protected route, editable display name (`updateProfile`), watchlist stats |
+| `AboutPage` | `/about` | None (static) + AI connection test | Feature cards, tech stack badges, live Gemini connection test button |
+| `SignInPage` | `/signin` | None | Email + Google auth, forgot password link, redirect after successful login |
+| `SignUpPage` | `/signup` | None | Email + Google auth, redirect after successful signup |
+| `ForgotPasswordPage` | `/reset-password` | None | Email input → `resetPassword()`, success state with email-sent confirmation |
+| `ErrorPage` | Catch-all | None | Dynamic error code display, retry button, "Back to Home" link |
 
 ---
 
-## 🔌 API Integration
+## Data Flow
 
-### TMDB API Service (`tmdbService.js`)
+### API Layer Architecture
 
-**Key Methods** (all with JSDoc documentation):
-- `transformMovie(movie)` - Transforms raw TMDB data to app format
-- `getTrending()` - Trending movies/TV for the day
-- `getPopular()` - Popular movies
-- `getTopRated()` - Top-rated movies
-- `getNowPlaying()` - Movies in theaters
-- `getUpComing()` - Upcoming movies
-- `getTrendingMovies()` - Trending movies for the week
-- `getPopularTV()` - Popular TV shows
-- `getTopToday()` - Top 10 trending items
-- `getKoreanTVSeries()` - Korean dramas (filtered by language)
-- `getMovieDetails(movieId, options)` - Detailed movie info with optional extended data (cast, videos, similar)
-- `search(query)` - Multi-search for movies and TV shows
-
-**API Configuration** (`apiConfig.js`):
-- Axios instance with base URL and interceptors
-- Global error handling (auto-redirect on 401)
-- Image URL helper function with size options
-- Bearer token authentication
-
-### Gemini AI Service (`geminiService.js`)
-
-**Methods**:
-- `generateText(prompt)` - Generates AI text responses
-- `isConfigured()` - Checks if API key is available
-
-**Model**: gemini-2.5-flash
-
----
-
-## 🗺️ Routing Structure
-
-```javascript
-/ (RootLayout)
-├── / (HomePage)
-├── /movie/:movieId (MovieDetailPage)
-│   └── /movie/:movieId/watch (VideoPlayer)
-├── /search (SearchPage)
-├── /watchlist (WatchlistPage)
-├── /about (AboutPage)
-└── /* (ErrorPage - 404)
+```
+Component → tmdbService → apiConfig (Axios) → TMDB API
+                ↓
+         transformMovie() ← genreMap (cached)
 ```
 
----
+**`apiConfig.js`** — Centralized Axios instance:
+- **Base URL**: `https://api.themoviedb.org/3`
+- **Auth**: Bearer token via `Authorization` header (TMDB v4 read access token)
+- **Request Interceptor**: Passthrough (extensible for logging/caching)
+- **Response Interceptor**: Unwraps `response.data` automatically, handles 401/404/429/5xx errors with specific messages, catches network errors
+- **`getImageUrl()`**: Helper that constructs TMDB image URLs with size parameter, returns a branded placeholder if path is null
 
-## 🎨 Design System
+**`tmdbService.js`** — Business logic layer:
+- **`transformMovie()`**: Normalizes raw TMDB data into a unified app format (`id`, `title`, `desc`, `poster`, `backdrop`, `rating`, `genres`, `type`, `ageRating`)
+- **Genre Caching**: Fetches `/genre/movie/list` + `/genre/tv/list` once, stores in a `Map<id, name>`. Uses a promise-deduplication pattern to prevent concurrent duplicate fetches. Every API method calls `await getGenreMap()` before transforming data.
+- **11 API methods**: `getTrending`, `getPopular`, `getTopRated`, `getNowPlaying`, `getUpComing`, `getTrendingMovies`, `getPopularTV`, `getTopToday`, `getKoreanTVSeries`, `getMovieDetails`, `search`
+- **`getMovieDetails()`**: Supports an `extended` option that fetches cast, videos, and similar movies in a single request via TMDB's `append_to_response` parameter
 
-### Typography
-- **Body Font**: Montserrat (sans-serif)
-- **Heading Font**: Bebas Neue (sans-serif)
+**`geminiService.js`** — AI service:
+- Uses `@google/generative-ai` SDK with Gemini 2.5 Flash model
+- Single method `generateText(prompt)` that returns raw text
+- Gracefully returns `null` if API key is missing (AI features silently disabled)
 
-### Color Palette
-- **Brand Green**: #16a34a
-- **Background**: Zinc-950 (dark)
-- **Text**: White/Zinc-400
-- **Accents**: Purple-400 to Pink-600 gradients
-
-### Component Patterns
-- **Buttons**: Multiple variants (primary, secondary, outline)
-- **Cards**: Hover effects with scale transforms
-- **Skeletons**: Animated loading states
-- **Icons**: Material Icons via react-icons
-- **Badges**: Genre and rating badges
-
-### Swiper Customization
-- Custom pagination bullets (brand green active state)
-- Fade transitions for hero section
-- No-scrollbar utility classes
+**`authService.js`** — Firebase wrapper:
+- Methods: `signUp`, `signIn`, `signInWithGoogle`, `signOut`, `resetPassword`, `updateUserProfile`, `getCurrentUser`, `onAuthStateChange`
+- Each method handles its own error mapping (Firebase error codes → user-friendly messages) and toast notifications
+- Google sign-in uses `GoogleAuthProvider` + `signInWithPopup`
+- `onAuthStateChange` wraps Firebase's `onAuthStateChanged` listener for reactive auth state
 
 ---
 
-## 📦 State Management
+## State Management
 
-### Watchlist Store (`useWatchlistStore.js`)
+### Zustand Stores
 
-**State**:
-- `watchlist: []` - Array of saved movies
+**`useAuthStore`** (39 lines):
+```
+State: { user, loading, initialized }
+Actions: { setUser, setLoading, initAuth, signOut }
+```
+- `initAuth()` subscribes to Firebase's `onAuthStateChanged` — called once in `main.jsx` before React renders
+- No persistence (auth state comes from Firebase on each page load)
 
-**Actions**:
-- `addToWatchlist(movie)` - Adds movie with duplicate check
-- `removeFromWatchlist(movieId)` - Removes movie by ID
-- `isInWatchlist(movieId)` - Checks if movie exists
-- `clearWatchlist()` - Clears all items
+**`useWatchlistStore`** (44 lines):
+```
+State: { watchlist: [] }
+Actions: { addToWatchlist, removeFromWatchlist, clearWatchlist, isInWatchlist }
+```
+- Uses Zustand's `persist` middleware with `localStorage` as storage engine
+- `addToWatchlist` checks for duplicates before adding
+- `isInWatchlist` uses `.some()` for O(n) lookup
 
-**Persistence**: 
-- Stored in localStorage as "movie-watchlist"
-- Automatically syncs on changes
+### Why Zustand Over Redux/Context
+
+- **2 stores, ~80 lines total** — Redux would require 3-4x more boilerplate (slices, actions, reducers, provider)
+- **No Context re-render issues** — Zustand subscriptions are granular; components only re-render when their selected state changes
+- **Built-in persistence** — Zustand's `persist` middleware handles localStorage serialization automatically
 
 ---
 
-## 🔐 Environment Variables
+## Authentication Flow
 
-Required in `.env` file:
-
-```env
-VITE_API_KEY=<TMDB_API_READ_ACCESS_TOKEN>
-VITE_GEMINI_API_KEY=<GOOGLE_GEMINI_API_KEY>
+```
+main.jsx
+  └── useAuthStore.initAuth()
+        └── authService.onAuthStateChange(callback)
+              └── Firebase onAuthStateChanged listener
+                    ├── User exists → setUser(user), setLoading(false)
+                    └── No user → setUser(null), setLoading(false)
 ```
 
-**Note**: Current keys are already configured in the project.
+**Protected Routes**: `ProtectedRoute` component checks `user` and `loading` from auth store:
+- If `loading` → shows spinner
+- If no `user` → redirects to `/signin` with `state.from` for post-login redirect
+- If `user` → renders children
+
+**Sign-In Flow**: Email → `authService.signIn()` → Firebase validates → `onAuthStateChanged` fires → Zustand updates → UI reacts → redirect to previous page or home
+
+**Google Sign-In**: `authService.signInWithGoogle()` → `signInWithPopup(auth, googleProvider)` → same auth state flow
+
+**Password Reset**: Email → `authService.resetPassword()` → Firebase sends email → success toast → UI shows confirmation state
 
 ---
 
-## 🚀 Development Workflow
+## AI Integration
 
-### Installation
-```bash
-npm install
+### MoodPicker Flow
+
+```
+User selects mood → Build Gemini prompt →
+"Suggest 5 [mood] movies. Return ONLY titles, one per line." →
+Parse response (split by newline, clean numbering) →
+For each title: tmdbService.search(title) →
+Display first result of each search as MovieCard
 ```
 
-### Development Server
-```bash
-npm run dev
+- **Prompt Engineering**: The prompt explicitly instructs "Return ONLY movie titles, one per line, no numbering or extra text" to ensure parseable output
+- **Error Handling**: If Gemini fails, a toast error is shown. If a title search returns no results, it's silently skipped.
+
+### "Why Watch This?" (MovieDetailPage)
+
+- Button triggers `fetchAiReason()` which sends: `Give me a short, intriguing, 1-sentence reason why someone should watch the movie "${movie.title}"`
+- Response is displayed in a styled purple card with animation
+- Button is disabled after first use (prevents spam)
+
+---
+
+## Routing Architecture
+
+```jsx
+createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,      // Navbar + Footer + Outlet + Toaster
+    errorElement: <ErrorPage />,   // Catch-all error boundary
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: "movie/:movieId", element: <MovieDetailPage />,
+        children: [
+          { path: "watch", element: <VideoPlayer /> }  // Nested route
+        ]
+      },
+      { path: "search", element: <SearchPage /> },
+      { path: "watchlist", element: <ProtectedRoute><WatchlistPage /></ProtectedRoute> },
+      { path: "profile", element: <ProtectedRoute><ProfilePage /></ProtectedRoute> },
+      { path: "signin", element: <SignInPage /> },
+      { path: "signup", element: <SignUpPage /> },
+      { path: "reset-password", element: <ForgotPasswordPage /> },
+      { path: "about", element: <AboutPage /> },
+    ]
+  }
+])
 ```
 
-### Build for Production
-```bash
-npm build
-```
-
-### Linting
-```bash
-npm run lint
-```
-
-### Preview Production Build
-```bash
-npm run preview
-```
+**Key patterns**:
+- **Nested routing**: `/movie/:id/watch` renders `VideoPlayer` inside `MovieDetailPage`'s `<Outlet>` — keeps the movie info visible while watching
+- **`useOutletContext`**: Parent passes `{ movie, isWatching }` to child via outlet context (no prop drilling)
+- **Error boundary**: `ErrorPage` uses `useRouteError()` to display the actual HTTP status code and message
+- **Scroll restoration**: `RootLayout` uses `useEffect` with `pathname` dependency to `scrollTo(0, 0)` on every route change
 
 ---
 
-## 📈 Development Roadmap Status
+## Responsive Design Strategy
 
-### ✅ Completed Phases
+The app targets 3 breakpoints using Tailwind's responsive prefixes:
 
-**Phase 1: Foundation & Core UI**
-- Project setup with Vite + React + TailwindCSS
-- Atomic architecture implementation
-- Responsive navigation system
-- Search system with glassmorphic UI
-- Skeleton loaders and reusable components
+| Breakpoint | Target | Strategy |
+|------------|--------|----------|
+| Default (< 768px) | Mobile | Single column, compact cards, hamburger menu, MobileSideBar |
+| `md:` (768px+) | Tablet | 2-3 column grids, expanded cards |
+| `lg:` (1024px+) | Desktop | Full layout, DesktopNav, poster images shown, larger typography |
 
-**Phase 2: Refactoring & Infrastructure**
-- Axios integration with interceptors
-- JSDoc documentation for all services
-- Search page enhancements (empty states, filters)
-
-**Phase 3: Global State & User Personalization**
-- Zustand store for watchlist
-- localStorage persistence
-- React Hot Toast integration
-- Dynamic watchlist buttons
-
-**Phase 4: AI Integration** 🆕
-- Google Gemini API connection
-- Mood-based movie recommendations
-- AI-generated movie descriptions
-
-### 🔄 Pending (Phase 5: Security & Optimization)
-- [ ] Sanitize AI outputs (DOMPurify)
-- [ ] Lighthouse audit (target: 90+ score)
-- [ ] Lazy loading for images and components
-- [ ] Optional TypeScript migration for complex components
+**Key responsive decisions**:
+- **Navigation**: `DesktopNav` is `hidden lg:flex`, `MobileNav` is `flex lg:hidden`
+- **Hero section**: `h-[75vh]` on mobile, `h-screen` on desktop
+- **Movie grids**: `grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5`
+- **Movie poster in detail page**: `hidden md:block` (hidden on mobile to save space)
+- **`overflow-x-hidden`** on root layout to prevent horizontal scroll issues
 
 ---
 
-## 🎭 Recent Refactoring (Last Conversations)
+## UI/UX Patterns
 
-### Conversation: Refactoring Icons and Services (Feb 10, 2026)
-- Moved `tmdbService.js` and `apiConfig.js` to `src/services/`
-- Updated all import paths across the project
-- Replaced hardcoded icons (including emojis) with `<Icon />` component
-- Updated `AboutPage.jsx` to reflect current project state
+### Visual Design
+- **Color palette**: `zinc-950` background, `green-500/600` as brand accent, `purple-500` for AI features, `red-500` for live/destructive actions
+- **Glassmorphism**: Auth forms use `bg-zinc-900/50 backdrop-blur-xl border border-zinc-800` for frosted glass effect
+- **Gradients**: Hero overlays use `bg-linear-to-t from-zinc-950 via-zinc-950/40 to-transparent` for cinematic fade
+- **Glow effects**: Video player has `shadow-[0_0_60px_rgba(22,163,74,0.4)]` for ambient glow
+- **Typography**: Montserrat (headings), Bebas Neue (logo/hero), system fonts (body) via Google Fonts
 
-### Conversation: Refactor Award Section (Feb 9, 2026)
-- Refactored `AwardSection.jsx` for application suitability
+### Animations
+- **CSS animations**: `animate-in fade-in slide-in-from-bottom-6 duration-700` for page entrance
+- **Hover effects**: Cards scale (`hover:scale-105`), images zoom (`group-hover:scale-110`), borders glow
+- **Loading states**: Spinner (border animation), skeleton loaders (pulse), inline loading text
+- **Transitions**: All interactive elements use `transition-all duration-300` for smooth state changes
 
-### Conversation: Navigation & Page Refactoring (Feb 8, 2026)
-- Consolidated "Discover" into search page
-- Pointed "Movie Release" to upcoming section on homepage
-- Removed "Forum" link
-- Created simple "About" page
-- Enhanced search page with trending movies default view
-
-### Conversation: Implementing Watchlist Feature (Feb 5, 2026)
-- Created Zustand store with localStorage persistence
-- Integrated watchlist into UI components
-
----
-
-## 🎯 Key Design Principles
-
-1. **Atomic Design**: Components organized from atoms → molecules → organisms → pages
-2. **Separation of Concerns**: Services layer separate from UI components
-3. **Reusability**: All UI elements built as reusable components
-4. **Performance**: Skeleton loaders, lazy loading considerations
-5. **User Experience**: Toast notifications, smooth animations, responsive design
-6. **Modern Aesthetics**: Dark mode, glassmorphism, gradients, micro-animations
+### User Feedback
+- **Toast notifications**: Success (green), error (red), loading (spinner) for every async operation
+- **Confirmation dialogs**: `window.confirm()` before destructive actions (clear watchlist)
+- **Empty states**: Custom illustrations with Icon + message + CTA button (watchlist, search)
+- **Active indicators**: Green dot with glow (`shadow-[0_0_10px]`) for active navigation, filter counts in search
 
 ---
 
-## 🔍 Important Implementation Details
+## Security Considerations
 
-### Image Handling
-- Uses TMDB's image CDN with configurable sizes
-- Default: w500 for posters, original for backdrops
-- Helper function: `getImageUrl(path, size)` in `apiConfig.js`
-
-### Video Player
-- Integrated with React Player
-- Supports multiple video sources
-- Embedded in MovieDetailPage with nested routing
-
-### Search Behavior
-- Filters out non-movie/TV results (excludes people)
-- Real-time search with debouncing (handled in component)
-- Shows trending content when query is empty
-
-### Mood Picker AI Flow
-1. User selects mood
-2. Gemini generates JSON array of movie titles + reasons
-3. App searches TMDB for each title
-4. Displays matched movies with AI-generated descriptions
-5. Error handling for API failures and missing movies
+- **Environment variables**: All API keys stored in `.env` with `VITE_` prefix, excluded from git via `.gitignore`
+- **Firebase security**: Auth handled entirely by Firebase SDK (no custom token storage)
+- **CORS**: TMDB API handles CORS headers; no proxy needed
+- **Input validation**: Auth forms validate email format and password length before submission
+- **XSS surface**: AI-generated text is rendered as text content (not `dangerouslySetInnerHTML`), reducing injection risk
 
 ---
 
-## 🐛 Known Considerations
+## Performance Patterns
 
-1. **Genre Mapping**: Currently uses placeholder genres in `transformMovie()` - real genre mapping can be added
-2. **AI Response Parsing**: Cleans markdown code blocks from Gemini responses
-3. **Error Handling**: Global error interceptor in Axios, component-level try-catch blocks
-4. **Accessibility**: Basic implementation, can be enhanced with ARIA labels
-5. **SEO**: Basic meta tags present, can be enhanced with React Helmet
-
----
-
-## 📝 Code Style & Conventions
-
-- **File Naming**: PascalCase for components (e.g., `MovieCard.jsx`)
-- **Service Files**: camelCase (e.g., `tmdbService.js`)
-- **CSS**: TailwindCSS utility classes, custom components in `@layer components`
-- **State**: Functional components with hooks
-- **Async/Await**: Preferred over promises for API calls
-- **Comments**: JSDoc for service methods, inline comments for complex logic
+- **Parallel data fetching**: HomePage fires 9 API calls simultaneously via `Promise.all`, with independent loading states per section
+- **Genre caching**: TMDB genre lists fetched once and cached in memory (module-level variable). Promise deduplication prevents concurrent duplicate requests.
+- **Image optimization**: TMDB images requested at appropriate sizes (`w500` for cards, `original` for backdrops)
+- **Conditional data loading**: `getMovieDetails({ extended: true })` uses TMDB's `append_to_response` to fetch cast + videos + similar in a single HTTP request instead of 4 separate calls
+- **Skeleton loading**: Every data-fetched section shows skeleton placeholders during loading, preventing layout shift
 
 ---
 
-## 🎬 Deployment
+## Skills & Knowledge Demonstrated
 
-- **Platform**: Vercel (configured with `vercel.json`)
-- **Build Command**: `vite build`
-- **Output Directory**: `dist`
-
----
-
-## 📚 Additional Resources
-
-- **TMDB API Docs**: https://developer.themoviedb.org/docs
-- **Gemini API Docs**: https://ai.google.dev/docs
-- **React Router**: https://reactrouter.com/
-- **Zustand**: https://zustand-demo.pmnd.rs/
-- **TailwindCSS**: https://tailwindcss.com/
-
----
-
-## 💡 Tips for Working with This Project
-
-1. **Adding New TMDB Endpoints**: Add methods to `tmdbService.js` with JSDoc
-2. **Creating New Components**: Follow atomic design - determine if it's an atom, molecule, or organism
-3. **State Management**: Use Zustand for global state, useState for local component state
-4. **Styling**: Use TailwindCSS utilities first, create custom classes in `index.css` only when necessary
-5. **Icons**: Use `<Icon name="material_icon_name" />` component instead of hardcoding
-6. **Toast Notifications**: Import `toast` from 'react-hot-toast' for user feedback
-7. **AI Features**: Check `geminiService.isConfigured()` before using AI features
+| Category | Specific Skills |
+|----------|----------------|
+| **React** | Functional components, hooks (useState, useEffect, useRef, useParams, useNavigate, useLocation, useSearchParams, useOutletContext), forwardRef, conditional rendering, event handling, key-based re-rendering |
+| **State Management** | Zustand stores, persist middleware, localStorage integration, global vs local state decisions |
+| **Routing** | createBrowserRouter, nested routes, route protection, error boundaries, programmatic navigation, URL search params |
+| **API Integration** | REST API consumption, Axios interceptors, Bearer token auth, response normalization, error handling by status code, data transformation layer |
+| **Authentication** | Firebase Auth, email/password auth, Google OAuth (popup), password reset, auth state listeners, protected routes |
+| **AI/ML Integration** | Google Gemini API, prompt engineering, response parsing, graceful degradation when API unavailable |
+| **CSS/Design** | TailwindCSS utility classes, responsive design (mobile-first), glassmorphism, gradients, animations, dark mode, custom font integration |
+| **Architecture** | Atomic Design pattern, service layer abstraction, separation of concerns, DRY principles, component composition |
+| **Performance** | Parallel async operations, data caching with deduplication, conditional fetching, skeleton loaders |
+| **Dev Tools** | Vite, ESLint, Git version control, environment variables, Vercel deployment |
 
 ---
 
-## 🎉 Project Highlights
+## File Count Summary
 
-- **Modern Stack**: Latest versions of React, Vite, and TailwindCSS
-- **AI Integration**: Cutting-edge Gemini AI for personalized recommendations
-- **Production Ready**: Complete error handling, loading states, and user feedback
-- **Scalable Architecture**: Atomic design allows easy expansion
-- **Premium UX**: Smooth animations, glassmorphism, and thoughtful interactions
-
----
-
-**Last Updated**: February 11, 2026  
-**Version**: 0.0.0 (Development)  
-**Maintained by**: MMiiinnn
-
----
-
-## 🤝 For Other Chatbots
-
-When working with this project:
-- Always check `tmdbService.js` for available API methods before creating new ones
-- Use the existing component library (atoms/molecules/organisms) before creating new components
-- Follow the established routing structure in `App.jsx`
-- Maintain the atomic design pattern
-- Test AI features with the configured Gemini API key
-- Use Zustand store for any new global state needs
-- Keep the premium aesthetic consistent with existing design patterns
+| Category | Count | Total Lines |
+|----------|-------|------------|
+| Atoms | 9 | ~350 |
+| Molecules | 5 | ~440 |
+| Organisms | 11 | ~1,250 |
+| Pages | 10 | ~1,260 |
+| Services | 4 | ~530 |
+| Stores | 2 | ~80 |
+| Config/Helpers | 4 | ~130 |
+| Root files | 3 | ~110 |
+| **Total** | **48** | **~4,150** |

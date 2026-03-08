@@ -33,6 +33,7 @@ const MovieCard = ({
             src={movie.poster}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             alt={movie.title}
+            loading="lazy"
           />
         </div>
 
@@ -69,6 +70,7 @@ const MovieCard = ({
           src={isLandscape ? movie.backdrop : movie.poster}
           className="h-full w-full object-cover transition-opacity duration-300 group-hover:opacity-70"
           alt={movie.title}
+          loading="lazy"
         />
       </div>
       <div className="absolute -inset-px bg-linear-to-t from-black via-black/40 to-transparent z-10" />

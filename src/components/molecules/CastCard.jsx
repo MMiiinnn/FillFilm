@@ -5,6 +5,7 @@ const CastCard = ({ person }) => {
         src={person.profile || "https://via.placeholder.com/150?text=No+Image"}
         alt={person.name}
         className="w-12 h-12 rounded-full object-cover border-2 border-green-500/20"
+        loading="lazy"
       />
       <div className="overflow-hidden">
         <p className="font-bold text-sm text-white truncate">{person.name}</p>

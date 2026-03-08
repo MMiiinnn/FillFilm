@@ -1,9 +1,15 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import Navbar from "../organisms/navigation/Navbar";
 import Footer from "../organisms/Footer";
 import ScrollToTop from "../atoms/ScrollToTop";
+
+const PageLoader = () => (
+  <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+    <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 const RootLayout = () => {
   const { pathname } = useLocation();
@@ -17,7 +23,9 @@ const RootLayout = () => {
       <Navbar />
 
       <main className="grow">
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       <Footer />

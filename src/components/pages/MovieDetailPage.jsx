@@ -143,6 +143,7 @@ const MovieDetailPage = () => {
                 src={movie.poster}
                 alt={movie.title}
                 className="w-44 lg:w-64 rounded-3xl shadow-2xl border border-white/10 hidden md:block transition-transform hover:scale-105 duration-500 pointer-events-auto"
+                loading="lazy"
               />
               <div className="flex-1 pointer-events-auto">
                 <div className="flex flex-wrap gap-2 mb-4">

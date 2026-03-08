@@ -63,6 +63,7 @@ const SidebarMovieList = ({ title, movies, isLive = false }) => {
                 src={movie.poster}
                 className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                 alt={movie.title}
+                loading="lazy"
               />
             </div>
 

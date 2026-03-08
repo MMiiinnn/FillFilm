@@ -55,6 +55,7 @@ const AwardSection = ({
             src={getImageUrl(featuredMovie.backdrop_path || featuredMovie.backdrop, "original")}
             alt={featuredMovie.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
         </div>

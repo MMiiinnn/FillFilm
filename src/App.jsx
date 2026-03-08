@@ -1,19 +1,22 @@
+import { lazy } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Analytics } from '@vercel/analytics/react';
 import "./App.css";
 import RootLayout from "./components/layouts/RootLayout";
 import ErrorPage from "./components/pages/ErrorPage";
-import HomePage from "./components/pages/HomePage";
-import MovieDetailPage from "./components/pages/MovieDetailPage";
-import VideoPlayer from "./components/organisms/VideoPlayer";
-import SearchPage from "./components/pages/SearchPage";
-import WatchlistPage from "./components/pages/WatchlistPage";
-import AboutPage from "./components/pages/AboutPage";
-import SignInPage from "./components/pages/SignInPage";
-import SignUpPage from "./components/pages/SignUpPage";
-import ProfilePage from "./components/pages/ProfilePage";
-import ForgotPasswordPage from "./components/pages/ForgotPasswordPage";
 import ProtectedRoute from "./components/helpers/ProtectedRoute";
+
+// Lazy-loaded pages (code-split into separate chunks)
+const HomePage = lazy(() => import("./components/pages/HomePage"));
+const MovieDetailPage = lazy(() => import("./components/pages/MovieDetailPage"));
+const VideoPlayer = lazy(() => import("./components/organisms/VideoPlayer"));
+const SearchPage = lazy(() => import("./components/pages/SearchPage"));
+const WatchlistPage = lazy(() => import("./components/pages/WatchlistPage"));
+const AboutPage = lazy(() => import("./components/pages/AboutPage"));
+const SignInPage = lazy(() => import("./components/pages/SignInPage"));
+const SignUpPage = lazy(() => import("./components/pages/SignUpPage"));
+const ProfilePage = lazy(() => import("./components/pages/ProfilePage"));
+const ForgotPasswordPage = lazy(() => import("./components/pages/ForgotPasswordPage"));
 
 const router = createBrowserRouter([
   {

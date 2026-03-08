@@ -26,5 +26,6 @@ dist-ssr
 # Dev note
 ROADMAP.md
 PROGRESS.md
+PROJECT_CONTEXT.md
 
 .env
