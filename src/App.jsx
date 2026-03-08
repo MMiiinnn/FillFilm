@@ -6,7 +6,6 @@ import RootLayout from "./components/layouts/RootLayout";
 import ErrorPage from "./components/pages/ErrorPage";
 import ProtectedRoute from "./components/helpers/ProtectedRoute";
 
-// Lazy-loaded pages (code-split into separate chunks)
 const HomePage = lazy(() => import("./components/pages/HomePage"));
 const MovieDetailPage = lazy(() => import("./components/pages/MovieDetailPage"));
 const VideoPlayer = lazy(() => import("./components/organisms/VideoPlayer"));
