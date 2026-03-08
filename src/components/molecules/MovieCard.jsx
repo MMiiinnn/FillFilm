@@ -10,7 +10,7 @@ const MovieCard = ({
   imageType = "poster",
 }) => {
   const navigate = useNavigate();
-  const isLandscape = imageType === "";
+  const isLandscape = imageType === "landscape";
   const aspectClass = isLandscape ? "aspect-video" : "aspect-2/3";
 
   const handleClick = () => {

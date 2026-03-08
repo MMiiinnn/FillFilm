@@ -1,10 +1,53 @@
 import api, { getImageUrl } from "./apiConfig";
 
+let genreMap = null;
+let genreMapPromise = null;
+
+/**
+ * @returns {Promise<Map<number, string>>} Map of genreId → genreName
+ */
+const getGenreMap = async () => {
+  if (genreMap) return genreMap;
+
+  if (!genreMapPromise) {
+    genreMapPromise = (async () => {
+      try {
+        const [movieGenres, tvGenres] = await Promise.all([
+          api.get("/genre/movie/list"),
+          api.get("/genre/tv/list"),
+        ]);
+
+        const map = new Map();
+        movieGenres.genres?.forEach((g) => map.set(g.id, g.name));
+        tvGenres.genres?.forEach((g) => map.set(g.id, g.name));
+
+        genreMap = map;
+        return map;
+      } catch (error) {
+        console.error("Failed to fetch genre list:", error);
+        return new Map();
+      }
+    })();
+  }
+
+  return genreMapPromise;
+};
+
+/**
+ * @param {number[]} genreIds - Array of TMDB genre IDs.
+ * @returns {string[]} Array of genre name strings.
+ */
+const resolveGenres = (genreIds) => {
+  if (!genreIds || !genreMap) return [];
+  return genreIds
+    .map((id) => genreMap.get(id))
+    .filter(Boolean);
+};
+
 const tmdbService = {
   /**
-   * Transforms raw TMDB API data into a unified App-specific format.
    * @param {Object} movie - Raw movie/tv object from TMDB API.
-   * @returns {Object} Transformed movie object with standarized fields.
+   * @returns {Object} Transformed movie object with standardized fields.
    */
   transformMovie: (movie) => ({
     id: movie.id,
@@ -13,9 +56,9 @@ const tmdbService = {
     poster: getImageUrl(movie.poster_path),
     backdrop: getImageUrl(movie.backdrop_path, "original"),
     rating: movie.vote_average?.toFixed(1) || "0.0",
-    genres: ["Action", "Sci-Fi"], // We will map real genre names later
+    genres: resolveGenres(movie.genre_ids),
     type: movie.media_type === "tv" ? "TV Series" : "Movie",
-    ageRating: "PG-13",
+    ageRating: movie.adult ? "R" : "PG-13",
   }),
 
   /**
@@ -23,6 +66,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed movies/TV shows.
    */
   getTrending: async () => {
+    await getGenreMap();
     const data = await api.get("/trending/all/day");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -32,6 +76,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed popular movies.
    */
   getPopular: async () => {
+    await getGenreMap();
     const data = await api.get("/movie/popular");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -41,6 +86,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed top-rated movies.
    */
   getTopRated: async () => {
+    await getGenreMap();
     const data = await api.get("/movie/top_rated");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -50,6 +96,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed now playing movies.
    */
   getNowPlaying: async () => {
+    await getGenreMap();
     const data = await api.get("/movie/now_playing");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -59,6 +106,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed upcoming movies.
    */
   getUpComing: async () => {
+    await getGenreMap();
     const data = await api.get("/movie/upcoming");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -68,6 +116,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed trending movies.
    */
   getTrendingMovies: async () => {
+    await getGenreMap();
     const data = await api.get("/trending/movie/week");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -77,6 +126,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed popular TV shows.
    */
   getPopularTV: async () => {
+    await getGenreMap();
     const data = await api.get("/tv/popular");
     return data.results.map(tmdbService.transformMovie);
   },
@@ -86,6 +136,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of top 10 transformed items.
    */
   getTopToday: async () => {
+    await getGenreMap();
     const data = await api.get("/trending/all/day");
     return data.results.slice(0, 10).map(tmdbService.transformMovie);
   },
@@ -95,6 +146,7 @@ const tmdbService = {
    * @returns {Promise<Array>} List of transformed K-Dramas.
    */
   getKoreanTVSeries: async () => {
+    await getGenreMap();
     const data = await api.get("/discover/tv", {
       params: {
         with_original_language: "ko",
@@ -114,6 +166,7 @@ const tmdbService = {
    */
   getMovieDetails: async (movieId, options = { extended: false }) => {
     try {
+      await getGenreMap();
       const { extended } = options;
 
       const params = {};
@@ -159,7 +212,7 @@ const tmdbService = {
    */
   search: async (query) => {
     if (!query) return [];
-    
+    await getGenreMap();
     const data = await api.get("/search/multi", {
       params: {
         query: query,
