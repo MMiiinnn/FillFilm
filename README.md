@@ -34,6 +34,12 @@
 - **Skeleton Loaders** — Loading states for all data-fetched content
 - **Atomic Design Architecture** — Components organized as Atoms → Molecules → Organisms → Pages
 
+### Performance
+- **Route-Level Code Splitting** — All pages lazy-loaded via `React.lazy()` with `Suspense` fallback
+- **Image Lazy Loading** — Native `loading="lazy"` on off-screen images
+- **Genre Caching** — TMDB genre lists fetched once and cached in memory with request deduplication
+- **Parallel Data Fetching** — HomePage loads 9 API calls simultaneously via `Promise.all`
+
 ---
 
 ## 🛠️ Tech Stack
@@ -65,8 +71,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/MMiiinnn/MovieApp.git
-   cd MovieApp
+   git clone https://github.com/MMiiinnn/FillFilm.git
+   cd FillFilm
    ```
 
 2. **Install dependencies**
