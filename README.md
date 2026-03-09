@@ -1,4 +1,4 @@
-# 🎬 FillFilm
+# FillFilm
 
 ![React](https://img.shields.io/badge/react_19-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss_4-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
@@ -11,7 +11,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core
 - **Movie & TV Discovery** — Browse trending, popular, top-rated, now playing, upcoming movies, Korean dramas, and more
